@@ -1,30 +1,22 @@
-import os
-os.environ['TF_USE_LEGACY_KERAS'] = '1'
-
 import streamlit as st
-import tensorflow as tf
-import tensorflow_hub as hub
-import tf_keras
 import numpy as np
 from PIL import Image
 import cv2
+import tensorflow as tf
+from tensorflow.keras.applications import MobileNetV2
+from tensorflow.keras.layers import Dense
+from tensorflow.keras.models import Model
 
 st.title("Dog & Cat Image Classifier")
 
 @st.cache_resource
 def load_model():
     try:
-        mobilenet_url = "https://tfhub.dev/google/tf2-preview/mobilenet_v2/feature_vector/4"
-        feature_extractor = hub.KerasLayer(mobilenet_url, input_shape=(224, 224, 3), trainable=False)
-        
-        model = tf_keras.Sequential([
-            feature_extractor,
-            tf_keras.layers.Dense(2, activation='softmax')
-        ])
-        
-        model.build((None, 224, 224, 3))
-        model.load_weights('model_weights.h5')
-        
+        base_model = MobileNetV2(input_shape=(224, 224, 3), include_top=False, pooling='avg', weights='imagenet')
+        base_model.trainable = False
+        output = Dense(2, activation='softmax')(base_model.output)
+        model = Model(inputs=base_model.input, outputs=output)
+        model.load_weights('model_weights.h5', by_name=False, skip_mismatch=False)
         return model
     except Exception as e:
         st.error(f"Failed to load model: {str(e)}")

@@ -1,9 +1,8 @@
-setuptools
-packaging
 streamlit
-tensorflow
-tensorflow-hub
-tf-keras
+tensorflow==2.15.0
+tensorflow-hub==0.16.1
+tf-keras==2.15.1
 numpy
 pillow
 opencv-python-headless
+setuptools

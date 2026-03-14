@@ -1,15 +1,8 @@
 import os
 os.environ['TF_USE_LEGACY_KERAS'] = '1'
 
-# Monkey-patch pkg_resources before tensorflow_hub imports it
-import importlib, types, sys
-if 'pkg_resources' not in sys.modules:
-    pkg = types.ModuleType('pkg_resources')
-    from packaging.version import Version
-    pkg.parse_version = Version
-    sys.modules['pkg_resources'] = pkg
-
 import streamlit as st
+import tensorflow as tf
 import tensorflow_hub as hub
 import tf_keras
 import numpy as np
@@ -18,7 +11,6 @@ import cv2
 
 st.title("Dog & Cat Image Classifier")
 
-# Model Loading
 @st.cache_resource
 def load_model():
     try:
@@ -27,14 +19,11 @@ def load_model():
         
         model = tf_keras.Sequential([
             feature_extractor,
-            tf_keras.layers.Dense(2, activation='softmax')  # 2 units for 2 classes
+            tf_keras.layers.Dense(2, activation='softmax')
         ])
         
         model.build((None, 224, 224, 3))
-        
-        # Load your trained weights
         model.load_weights('model_weights.h5')
-        
         
         return model
     except Exception as e:
@@ -51,30 +40,20 @@ if model is not None:
         st.image(image, caption="Uploaded Image", use_container_width=True)
         
         img_array = np.array(image)
-        
-        # Keep RGB format (don't convert to BGR)
         img_array = cv2.resize(img_array, (224, 224))
         img_array = img_array.astype(np.float32) / 255.0
         img_array = img_array.reshape(1, 224, 224, 3)
         
         prediction = model.predict(img_array, verbose=0)
-        
-        # Get the predicted class (0=Cat, 1=Dog)
         predicted_class = np.argmax(prediction[0])
         confidence = prediction[0][predicted_class]
         
-        # Set confidence threshold
-        confidence_threshold = 0.70
-        
-        if confidence < confidence_threshold:
-            st.warning("⚠️ Unable to classify with confidence. This might not be a dog or cat image.")
-            st.write(f"Prediction: {'Dog' if predicted_class == 1 else 'Cat'} (Low confidence: {confidence * 100:.2f}%)")
+        if confidence < 0.70:
+            st.warning("⚠️ Unable to classify. This might not be a dog or cat image.")
+            st.write(f"Low confidence: {confidence * 100:.2f}%")
         else:
             if predicted_class == 1:
                 st.success("🐕 The image is a Dog")
             else:
                 st.success("🐱 The image is a Cat")
-            
             st.write(f"Confidence: {confidence * 100:.2f}%")
-
-st.markdown("---")

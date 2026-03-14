@@ -17,15 +17,11 @@ def load_model():
         output = Dense(2, activation='softmax')(base_model.output)
         model = Model(inputs=base_model.input, outputs=output)
         
-        # Load only Dense layer weights (last layer)
+        # Load Dense layer weights directly from h5 file
         import h5py
         with h5py.File('model_weights.h5', 'r') as f:
-            # Get the dense layer weights from saved file
-            keys = list(f.keys())
-            dense_key = keys[-1]
-            weight_names = list(f[dense_key][dense_key].keys())
-            kernel = f[dense_key][dense_key][weight_names[0]][:]
-            bias = f[dense_key][dense_key][weight_names[1]][:]
+            kernel = f['dense']['dense']['kernel:0'][:]
+            bias = f['dense']['dense']['bias:0'][:]
             model.layers[-1].set_weights([kernel, bias])
         
         return model

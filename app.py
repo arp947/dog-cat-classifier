@@ -1,6 +1,14 @@
 import os
 os.environ['TF_USE_LEGACY_KERAS'] = '1'
 
+# Monkey-patch pkg_resources before tensorflow_hub imports it
+import importlib, types, sys
+if 'pkg_resources' not in sys.modules:
+    pkg = types.ModuleType('pkg_resources')
+    from packaging.version import Version
+    pkg.parse_version = Version
+    sys.modules['pkg_resources'] = pkg
+
 import streamlit as st
 import tensorflow_hub as hub
 import tf_keras

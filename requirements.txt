@@ -1,0 +1,7 @@
+streamlit
+tensorflow==2.20.0
+tensorflow-hub
+tf-keras
+numpy
+pillow
+opencv-python-headless

@@ -1,3 +1,4 @@
+setuptools
 streamlit
 tensorflow
 tensorflow-hub
@@ -5,4 +6,3 @@ tf-keras
 numpy
 pillow
 opencv-python-headless
-setuptools

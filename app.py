@@ -1,13 +1,6 @@
 import os
 os.environ['TF_USE_LEGACY_KERAS'] = '1'
 
-# Fix for pkg_resources missing in newer Python versions
-try:
-    import pkg_resources
-except ImportError:
-    import setuptools
-    import pkg_resources
-
 import streamlit as st
 import tensorflow_hub as hub
 import tf_keras
